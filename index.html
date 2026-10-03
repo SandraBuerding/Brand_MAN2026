@@ -2,206 +2,301 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-<title>Lagekarte Einsatzleitung</title>
+<title>Digitale Lagekarte</title>
 
 <style>
-    * {
-        box-sizing: border-box;
-    }
+* { box-sizing: border-box; }
 
-    html, body {
-        margin: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        font-family: Arial, Helvetica, sans-serif;
-        background: #172333;
-    }
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #182333;
+    touch-action: manipulation;
+}
 
-    #app {
-        display: flex;
-        width: 100vw;
-        height: 100vh;
-    }
+#app {
+    display: flex;
+    width: 100vw;
+    height: 100vh;
+}
 
-    /* =========================
-       LINKE SEITE – LAGEKARTE
-       ========================= */
+/* =========================
+   LAGEKARTE
+========================= */
 
-    #mapArea {
-        position: relative;
-        width: 78%;
-        height: 100%;
-        background: #222;
-        overflow: hidden;
-        user-select: none;
-    }
+#mapArea {
+    position: relative;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    background: #222;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+}
 
-    #map {
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        display: block;
-        pointer-events: none;
-    }
+#map {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    pointer-events: none;
+}
 
-    #objectLayer {
-        position: absolute;
-        inset: 0;
-        overflow: hidden;
-    }
+#objectLayer {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+}
 
-    /* =========================
-       RECHTE SEITE
-       ========================= */
+/* =========================
+   FAHRZEUGLEISTE
+========================= */
+
+#sidebar {
+    width: 230px;
+    min-width: 190px;
+    max-width: 28vw;
+    height: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    background: #f4f6f8;
+    border-left: 3px solid #172333;
+    padding: 12px;
+}
+
+#sidebar h1 {
+    margin: 0 0 14px;
+    color: #172333;
+    font-size: 22px;
+}
+
+.group {
+    margin-bottom: 18px;
+}
+
+.group-title {
+    font-size: 13px;
+    font-weight: bold;
+    color: #64748b;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 5px;
+    margin-bottom: 7px;
+}
+
+.vehicle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 58px;
+    padding: 6px;
+    margin-bottom: 7px;
+
+    background: white;
+    border: 1px solid #d6dce2;
+    border-radius: 8px;
+
+    cursor: grab;
+    touch-action: manipulation;
+}
+
+.vehicle:active {
+    background: #dbeafe;
+}
+
+.vehicle img {
+    width: 75px;
+    height: 42px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.vehicle span {
+    font-size: 14px;
+    font-weight: bold;
+    color: #172333;
+}
+
+/* =========================
+   FAHRZEUGE AUF KARTE
+========================= */
+
+.map-object {
+    position: absolute;
+    width: 90px;
+    cursor: move;
+    touch-action: none;
+    transform-origin: center center;
+}
+
+.map-object.selected {
+    outline: 3px solid #ffd400;
+    outline-offset: 4px;
+    border-radius: 4px;
+    z-index: 100;
+}
+
+.map-object img {
+    width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+}
+
+.object-label {
+    position: absolute;
+    left: 50%;
+    top: 100%;
+    transform: translateX(-50%);
+    margin-top: 4px;
+
+    background: rgba(15,23,42,.90);
+    color: white;
+
+    padding: 3px 6px;
+    border-radius: 4px;
+
+    font-size: 11px;
+    font-weight: bold;
+    white-space: nowrap;
+
+    pointer-events: none;
+}
+
+/* =========================
+   INFO
+========================= */
+
+#hint {
+    position: absolute;
+    left: 10px;
+    top: 10px;
+    z-index: 500;
+
+    background: rgba(255,255,255,.92);
+    color: #172333;
+
+    padding: 7px 10px;
+    border-radius: 7px;
+
+    font-size: 12px;
+    pointer-events: none;
+}
+
+/* =========================
+   TOOLBAR
+========================= */
+
+#toolbar {
+    position: absolute;
+    z-index: 1000;
+
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 5px;
+
+    padding: 7px;
+
+    background: rgba(20,30,40,.94);
+    border-radius: 11px;
+
+    max-width: calc(100% - 20px);
+}
+
+#toolbar button {
+    min-width: 45px;
+    min-height: 44px;
+
+    border: none;
+    border-radius: 7px;
+
+    padding: 7px 10px;
+
+    background: white;
+    color: #172333;
+
+    font-size: 14px;
+    font-weight: bold;
+
+    cursor: pointer;
+    touch-action: manipulation;
+}
+
+#toolbar button:active {
+    transform: scale(.96);
+}
+
+#toolbar .danger {
+    background: #b91c1c;
+    color: white;
+}
+
+#toolbar .secondary {
+    background: #475569;
+    color: white;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+#status {
+    position: absolute;
+    z-index: 600;
+    top: 10px;
+    right: 10px;
+
+    background: rgba(15,23,42,.88);
+    color: white;
+
+    padding: 6px 9px;
+    border-radius: 6px;
+
+    font-size: 11px;
+    pointer-events: none;
+}
+
+/* =========================
+   iPAD / KLEINERE DISPLAYS
+========================= */
+
+@media (max-width: 900px) {
 
     #sidebar {
-        width: 22%;
-        height: 100%;
-        background: #f4f6f8;
-        border-left: 4px solid #172333;
-        overflow-y: auto;
-        padding: 14px;
-    }
-
-    #sidebar h1 {
-        font-size: 22px;
-        margin: 0 0 15px 0;
-        color: #172333;
-    }
-
-    .group {
-        margin-bottom: 20px;
-    }
-
-    .group-title {
-        font-size: 14px;
-        font-weight: bold;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 8px;
-        border-bottom: 1px solid #cbd5e1;
-        padding-bottom: 5px;
+        width: 200px;
+        max-width: 32vw;
+        padding: 8px;
     }
 
     .vehicle {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: white;
-        border: 1px solid #d6dce2;
-        border-radius: 8px;
-        padding: 7px;
-        margin-bottom: 7px;
-        cursor: grab;
-        transition: background 0.15s;
-    }
-
-    .vehicle:hover {
-        background: #eaf2f8;
+        min-height: 52px;
     }
 
     .vehicle img {
-        width: 75px;
-        height: 45px;
-        object-fit: contain;
-        pointer-events: none;
+        width: 60px;
     }
 
     .vehicle span {
-        font-weight: bold;
-        font-size: 14px;
-        color: #172333;
-    }
-
-    /* =========================
-       FAHRZEUGE AUF DER KARTE
-       ========================= */
-
-    .map-object {
-        position: absolute;
-        width: 90px;
-        cursor: move;
-        touch-action: none;
-        transform-origin: center;
-    }
-
-    .map-object.selected {
-        outline: 3px solid #ffd400;
-        outline-offset: 4px;
-        border-radius: 4px;
-    }
-
-    .map-object img {
-        width: 100%;
-        height: auto;
-        display: block;
-        pointer-events: none;
-    }
-
-    /* =========================
-       BEDIENLEISTE
-       ========================= */
-
-    #toolbar {
-        position: absolute;
-        left: 50%;
-        bottom: 18px;
-        transform: translateX(-50%);
-        z-index: 1000;
-
-        display: flex;
-        gap: 6px;
-
-        background: rgba(20, 30, 40, 0.92);
-        padding: 8px;
-        border-radius: 12px;
-
-        box-shadow: 0 4px 18px rgba(0,0,0,.35);
+        font-size: 12px;
     }
 
     #toolbar button {
-        border: none;
-        border-radius: 7px;
-        padding: 9px 13px;
-        background: white;
-        color: #172333;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
+        font-size: 12px;
+        padding: 6px 8px;
     }
-
-    #toolbar button:hover {
-        background: #dbeafe;
-    }
-
-    #toolbar .delete {
-        background: #b91c1c;
-        color: white;
-    }
-
-    #toolbar .reset {
-        background: #334155;
-        color: white;
-    }
-
-    #hint {
-        position: absolute;
-        top: 12px;
-        left: 12px;
-        z-index: 500;
-
-        background: rgba(255,255,255,.90);
-        padding: 7px 11px;
-        border-radius: 7px;
-
-        font-size: 13px;
-        color: #172333;
-
-        pointer-events: none;
-    }
+}
 </style>
 </head>
 
@@ -209,163 +304,263 @@
 
 <div id="app">
 
-    <!-- =====================
-         LAGEKARTE
-         ===================== -->
+<div id="mapArea">
 
-    <div id="mapArea">
+    <img id="map" src="Lagekarte.png" alt="Lagekarte">
 
-        <img id="map" src="Lagekarte.png" alt="Lagekarte">
+    <div id="objectLayer"></div>
 
-        <div id="objectLayer"></div>
+    <div id="hint">
+        Fahrzeug rechts antippen oder auf die Karte ziehen
+    </div>
 
-        <div id="hint">
-            Fahrzeug rechts auswählen und auf die Lagekarte ziehen
-        </div>
+    <div id="status">
+        Lage wird automatisch gespeichert
+    </div>
 
-        <div id="toolbar">
-            <button id="rotateLeft">↶ 15°</button>
-            <button id="rotateRight">↷ 15°</button>
-            <button id="smaller">−</button>
-            <button id="bigger">+</button>
-            <button id="delete" class="delete">Löschen</button>
-            <button id="reset" class="reset">Lage zurücksetzen</button>
-        </div>
+    <div id="toolbar">
+
+        <button id="rotateLeft">↶ 15°</button>
+        <button id="rotateRight">↷ 15°</button>
+
+        <button id="smaller">−</button>
+        <button id="bigger">+</button>
+
+        <button id="duplicate">Kopieren</button>
+        <button id="rename">Beschriften</button>
+
+        <button id="delete" class="danger">Löschen</button>
+
+        <button id="reset" class="secondary">
+            Lage zurücksetzen
+        </button>
 
     </div>
 
-
-    <!-- =====================
-         FAHRZEUGLEISTE
-         ===================== -->
-
-    <aside id="sidebar">
-
-        <h1>Fahrzeuge</h1>
-
-        <div class="group">
-            <div class="group-title">Rettungsdienst</div>
-
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/RTW.png">
-                <img src="Fahrzeuge/RTW.png">
-                <span>RTW</span>
-            </div>
-
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/KTW.png">
-                <img src="Fahrzeuge/KTW.png">
-                <span>KTW</span>
-            </div>
-
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/NEF.png">
-                <img src="Fahrzeuge/NEF.png">
-                <span>NEF</span>
-            </div>
-        </div>
+</div>
 
 
-        <div class="group">
-            <div class="group-title">Feuerwehr</div>
+<aside id="sidebar">
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/HLF20.png">
-                <img src="Fahrzeuge/HLF20.png">
-                <span>HLF 20</span>
-            </div>
+<h1>Fahrzeuge</h1>
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/LF20.png">
-                <img src="Fahrzeuge/LF20.png">
-                <span>LF 20</span>
-            </div>
+<div class="group">
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/Drehleiter.png">
-                <img src="Fahrzeuge/Drehleiter.png">
-                <span>Drehleiter</span>
-            </div>
+<div class="group-title">RETTUNGSDIENST</div>
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/GW-L.png">
-                <img src="Fahrzeuge/GW-L.png">
-                <span>GW-L</span>
-            </div>
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/RTW.png"
+     data-name="RTW">
+<img src="Fahrzeuge/RTW.png">
+<span>RTW</span>
+</div>
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/ELW_FFW.png">
-                <img src="Fahrzeuge/ELW_FFW.png">
-                <span>ELW</span>
-            </div>
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/KTW.png"
+     data-name="KTW">
+<img src="Fahrzeuge/KTW.png">
+<span>KTW</span>
+</div>
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/MZF.png">
-                <img src="Fahrzeuge/MZF.png">
-                <span>MZF</span>
-            </div>
-        </div>
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/NEF.png"
+     data-name="NEF">
+<img src="Fahrzeuge/NEF.png">
+<span>NEF</span>
+</div>
+
+</div>
 
 
-        <div class="group">
-            <div class="group-title">Polizei</div>
+<div class="group">
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/POL.png">
-                <img src="Fahrzeuge/POL.png">
-                <span>Polizei</span>
-            </div>
-        </div>
+<div class="group-title">FEUERWEHR</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/HLF20.png"
+     data-name="HLF 20">
+<img src="Fahrzeuge/HLF20.png">
+<span>HLF 20</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/LF20.png"
+     data-name="LF 20">
+<img src="Fahrzeuge/LF20.png">
+<span>LF 20</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/Drehleiter.png"
+     data-name="Drehleiter">
+<img src="Fahrzeuge/Drehleiter.png">
+<span>Drehleiter</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/GW-L.png"
+     data-name="GW-L">
+<img src="Fahrzeuge/GW-L.png">
+<span>GW-L</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/ELW_FFW.png"
+     data-name="ELW">
+<img src="Fahrzeuge/ELW_FFW.png">
+<span>ELW</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/MZF.png"
+     data-name="MZF">
+<img src="Fahrzeuge/MZF.png">
+<span>MZF</span>
+</div>
+
+</div>
 
 
-        <div class="group">
-            <div class="group-title">Luftrettung</div>
+<div class="group">
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/ADAC.png">
-                <img src="Fahrzeuge/ADAC.png">
-                <span>RTH ADAC</span>
-            </div>
+<div class="group-title">POLIZEI</div>
 
-            <div class="vehicle" draggable="true"
-                 data-src="Fahrzeuge/DRF.png">
-                <img src="Fahrzeuge/DRF.png">
-                <span>RTH DRF</span>
-            </div>
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/POL.png"
+     data-name="Polizei">
+<img src="Fahrzeuge/POL.png">
+<span>Polizei</span>
+</div>
 
-        </div>
+</div>
 
-    </aside>
+
+<div class="group">
+
+<div class="group-title">LUFTRETTUNG</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/ADAC.png"
+     data-name="RTH ADAC">
+<img src="Fahrzeuge/ADAC.png">
+<span>RTH ADAC</span>
+</div>
+
+<div class="vehicle"
+     draggable="true"
+     data-src="Fahrzeuge/DRF.png"
+     data-name="RTH DRF">
+<img src="Fahrzeuge/DRF.png">
+<span>RTH DRF</span>
+</div>
+
+</div>
+
+</aside>
 
 </div>
 
 
 <script>
+
 const mapArea = document.getElementById("mapArea");
 const layer = document.getElementById("objectLayer");
+const statusBox = document.getElementById("status");
 
 let selected = null;
 let dragSrc = null;
+let dragName = null;
+
+const STORAGE_KEY = "digitaleLagekarteBrandV2";
 
 
-/* ==============================
-   FAHRZEUG AUS SIDEBAR ZIEHEN
-   ============================== */
+/* =====================================
+   STATUSMELDUNG
+===================================== */
+
+function showStatus(text) {
+
+    statusBox.textContent = text;
+
+    clearTimeout(showStatus.timer);
+
+    showStatus.timer = setTimeout(() => {
+        statusBox.textContent =
+            "Lage wird automatisch gespeichert";
+    }, 1600);
+
+}
+
+
+/* =====================================
+   FAHRZEUGPALETTE
+===================================== */
 
 document.querySelectorAll(".vehicle").forEach(vehicle => {
 
+    /* iPAD / TOUCH / MAUSKLICK */
+
+    vehicle.addEventListener("click", () => {
+
+        const src = vehicle.dataset.src;
+        const name = vehicle.dataset.name;
+
+        /*
+        Neue Fahrzeuge erscheinen zunächst
+        ungefähr in der Kartenmitte.
+        */
+
+        const x = mapArea.clientWidth * 0.50;
+        const y = mapArea.clientHeight * 0.45;
+
+        createObject(src, name, x, y);
+
+        showStatus(name + " hinzugefügt");
+
+    });
+
+
+    /* MAC DRAG & DROP */
+
     vehicle.addEventListener("dragstart", e => {
+
         dragSrc = vehicle.dataset.src;
-        e.dataTransfer.setData("text/plain", dragSrc);
+        dragName = vehicle.dataset.name;
+
+        e.dataTransfer.setData(
+            "text/plain",
+            JSON.stringify({
+                src: dragSrc,
+                name: dragName
+            })
+        );
+
         e.dataTransfer.effectAllowed = "copy";
+
     });
 
 });
 
 
 mapArea.addEventListener("dragover", e => {
+
     e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
+
+    if (e.dataTransfer) {
+        e.dataTransfer.dropEffect = "copy";
+    }
+
 });
 
 
@@ -373,15 +568,29 @@ mapArea.addEventListener("drop", e => {
 
     e.preventDefault();
 
-    const src =
-        e.dataTransfer.getData("text/plain") || dragSrc;
+    let src = dragSrc;
+    let name = dragName;
+
+    try {
+
+        const data =
+            JSON.parse(
+                e.dataTransfer.getData("text/plain")
+            );
+
+        src = data.src;
+        name = data.name;
+
+    } catch {}
 
     if (!src) return;
 
-    const rect = mapArea.getBoundingClientRect();
+    const rect =
+        mapArea.getBoundingClientRect();
 
     createObject(
         src,
+        name || "",
         e.clientX - rect.left,
         e.clientY - rect.top
     );
@@ -389,249 +598,740 @@ mapArea.addEventListener("drop", e => {
 });
 
 
-/* ==============================
-   OBJEKT ERZEUGEN
-   ============================== */
+/* =====================================
+   FAHRZEUG ERZEUGEN
+===================================== */
 
-function createObject(src, x, y) {
+function createObject(
+    src,
+    name,
+    x,
+    y,
+    options = {}
+) {
 
-    const obj = document.createElement("div");
+    const obj =
+        document.createElement("div");
 
     obj.className = "map-object";
 
-    obj.dataset.rotation = "0";
-    obj.dataset.size = "90";
+    obj.dataset.src = src;
+    obj.dataset.name = name || "";
 
-    obj.style.width = "90px";
+    obj.dataset.rotation =
+        options.rotation ?? 0;
 
-    obj.style.left = (x - 45) + "px";
-    obj.style.top = (y - 25) + "px";
+    obj.dataset.size =
+        options.size ?? 90;
 
-    const img = document.createElement("img");
+
+    obj.style.width =
+        obj.dataset.size + "px";
+
+
+    obj.style.left =
+        (options.left ?? (x - 45)) + "px";
+
+    obj.style.top =
+        (options.top ?? (y - 25)) + "px";
+
+
+    updateRotation(obj);
+
+
+    const img =
+        document.createElement("img");
+
     img.src = src;
 
     obj.appendChild(img);
+
+
+    const label =
+        document.createElement("div");
+
+    label.className = "object-label";
+
+    label.textContent =
+        options.label ?? name ?? "";
+
+    /*
+    Normale Fahrzeugbezeichnung zunächst
+    ausblenden. Erst eigene Beschriftungen
+    werden angezeigt.
+    */
+
+    if (!options.label) {
+        label.style.display = "none";
+    }
+
+    obj.appendChild(label);
+
+
     layer.appendChild(obj);
 
     makeMovable(obj);
 
     selectObject(obj);
+
+    saveState();
+
+    return obj;
 }
 
 
-/* ==============================
-   OBJEKT AUF KARTE BEWEGEN
-   ============================== */
+/* =====================================
+   FAHRZEUG BEWEGEN
+===================================== */
 
 function makeMovable(obj) {
 
     let moving = false;
+
     let offsetX = 0;
     let offsetY = 0;
 
-    obj.addEventListener("pointerdown", e => {
 
-        e.preventDefault();
+    obj.addEventListener(
+        "pointerdown",
+        e => {
 
-        selectObject(obj);
+            e.preventDefault();
 
-        moving = true;
+            selectObject(obj);
 
-        const rect = obj.getBoundingClientRect();
+            moving = true;
 
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
+            const rect =
+                obj.getBoundingClientRect();
 
-        obj.setPointerCapture(e.pointerId);
-    });
+            offsetX =
+                e.clientX - rect.left;
+
+            offsetY =
+                e.clientY - rect.top;
 
 
-    obj.addEventListener("pointermove", e => {
+            try {
+                obj.setPointerCapture(
+                    e.pointerId
+                );
+            } catch {}
+
+        }
+    );
+
+
+    obj.addEventListener(
+        "pointermove",
+        e => {
+
+            if (!moving) return;
+
+            const mapRect =
+                mapArea.getBoundingClientRect();
+
+
+            let x =
+                e.clientX -
+                mapRect.left -
+                offsetX;
+
+
+            let y =
+                e.clientY -
+                mapRect.top -
+                offsetY;
+
+
+            const maxX =
+                mapArea.clientWidth -
+                obj.offsetWidth;
+
+
+            const maxY =
+                mapArea.clientHeight -
+                obj.offsetHeight;
+
+
+            x =
+                Math.max(
+                    0,
+                    Math.min(x, maxX)
+                );
+
+
+            y =
+                Math.max(
+                    0,
+                    Math.min(y, maxY)
+                );
+
+
+            obj.style.left =
+                x + "px";
+
+            obj.style.top =
+                y + "px";
+
+        }
+    );
+
+
+    function stopMoving(e) {
 
         if (!moving) return;
-
-        const mapRect = mapArea.getBoundingClientRect();
-
-        let x =
-            e.clientX -
-            mapRect.left -
-            offsetX;
-
-        let y =
-            e.clientY -
-            mapRect.top -
-            offsetY;
-
-        const maxX =
-            mapArea.clientWidth -
-            obj.offsetWidth;
-
-        const maxY =
-            mapArea.clientHeight -
-            obj.offsetHeight;
-
-        x = Math.max(0, Math.min(x, maxX));
-        y = Math.max(0, Math.min(y, maxY));
-
-        obj.style.left = x + "px";
-        obj.style.top = y + "px";
-    });
-
-
-    obj.addEventListener("pointerup", e => {
 
         moving = false;
 
         try {
-            obj.releasePointerCapture(e.pointerId);
+            obj.releasePointerCapture(
+                e.pointerId
+            );
         } catch {}
 
-    });
+        saveState();
+    }
+
+
+    obj.addEventListener(
+        "pointerup",
+        stopMoving
+    );
+
+
+    obj.addEventListener(
+        "pointercancel",
+        stopMoving
+    );
 
 }
 
 
-/* ==============================
+/* =====================================
    AUSWAHL
-   ============================== */
+===================================== */
 
 function selectObject(obj) {
 
     if (selected) {
-        selected.classList.remove("selected");
+        selected.classList.remove(
+            "selected"
+        );
     }
 
     selected = obj;
 
     if (selected) {
-        selected.classList.add("selected");
+        selected.classList.add(
+            "selected"
+        );
     }
 
 }
 
 
-/* ==============================
+/* =====================================
    DREHEN
-   ============================== */
+===================================== */
+
+function updateRotation(obj) {
+
+    const rotation =
+        parseInt(
+            obj.dataset.rotation || 0
+        );
+
+    obj.style.transform =
+        `rotate(${rotation}deg)`;
+
+}
+
 
 function rotate(amount) {
 
-    if (!selected) return;
+    if (!selected) {
+        showStatus(
+            "Zuerst ein Fahrzeug auswählen"
+        );
+        return;
+    }
+
 
     let rotation =
-        parseInt(selected.dataset.rotation || 0);
+        parseInt(
+            selected.dataset.rotation || 0
+        );
+
 
     rotation += amount;
 
-    selected.dataset.rotation = rotation;
 
-    selected.style.transform =
-        `rotate(${rotation}deg)`;
+    selected.dataset.rotation =
+        rotation;
+
+
+    updateRotation(selected);
+
+    saveState();
+
 }
 
 
 document
-    .getElementById("rotateLeft")
-    .addEventListener("click", () => rotate(-15));
+.getElementById("rotateLeft")
+.addEventListener(
+    "click",
+    () => rotate(-15)
+);
 
 
 document
-    .getElementById("rotateRight")
-    .addEventListener("click", () => rotate(15));
+.getElementById("rotateRight")
+.addEventListener(
+    "click",
+    () => rotate(15)
+);
 
 
-/* ==============================
+/* =====================================
    GRÖSSE
-   ============================== */
+===================================== */
 
 document
-    .getElementById("bigger")
-    .addEventListener("click", () => {
-
-        if (!selected) return;
-
-        let size =
-            parseInt(selected.dataset.size || 90);
-
-        size = Math.min(250, size + 15);
-
-        selected.dataset.size = size;
-        selected.style.width = size + "px";
-
-    });
+.getElementById("bigger")
+.addEventListener(
+    "click",
+    () => resizeSelected(15)
+);
 
 
 document
-    .getElementById("smaller")
-    .addEventListener("click", () => {
-
-        if (!selected) return;
-
-        let size =
-            parseInt(selected.dataset.size || 90);
-
-        size = Math.max(35, size - 15);
-
-        selected.dataset.size = size;
-        selected.style.width = size + "px";
-
-    });
+.getElementById("smaller")
+.addEventListener(
+    "click",
+    () => resizeSelected(-15)
+);
 
 
-/* ==============================
+function resizeSelected(amount) {
+
+    if (!selected) {
+        showStatus(
+            "Zuerst ein Fahrzeug auswählen"
+        );
+        return;
+    }
+
+
+    let size =
+        parseInt(
+            selected.dataset.size || 90
+        );
+
+
+    size =
+        Math.max(
+            35,
+            Math.min(
+                250,
+                size + amount
+            )
+        );
+
+
+    selected.dataset.size =
+        size;
+
+
+    selected.style.width =
+        size + "px";
+
+
+    saveState();
+}
+
+
+/* =====================================
+   BESCHRIFTEN
+===================================== */
+
+document
+.getElementById("rename")
+.addEventListener(
+    "click",
+    () => {
+
+        if (!selected) {
+
+            showStatus(
+                "Zuerst ein Fahrzeug auswählen"
+            );
+
+            return;
+        }
+
+
+        const label =
+            selected.querySelector(
+                ".object-label"
+            );
+
+
+        const current =
+            label.textContent ||
+            selected.dataset.name ||
+            "";
+
+
+        const newName =
+            prompt(
+                "Bezeichnung des Fahrzeugs:",
+                current
+            );
+
+
+        if (newName === null) return;
+
+
+        const cleaned =
+            newName.trim();
+
+
+        if (!cleaned) {
+
+            label.textContent = "";
+            label.style.display = "none";
+
+        } else {
+
+            label.textContent = cleaned;
+            label.style.display = "block";
+
+        }
+
+
+        saveState();
+
+    }
+);
+
+
+/* =====================================
+   DUPLIZIEREN
+===================================== */
+
+document
+.getElementById("duplicate")
+.addEventListener(
+    "click",
+    () => {
+
+        if (!selected) {
+
+            showStatus(
+                "Zuerst ein Fahrzeug auswählen"
+            );
+
+            return;
+        }
+
+
+        const label =
+            selected.querySelector(
+                ".object-label"
+            );
+
+
+        const newObj =
+            createObject(
+                selected.dataset.src,
+                selected.dataset.name,
+                0,
+                0,
+                {
+                    left:
+                        parseFloat(
+                            selected.style.left
+                        ) + 25,
+
+                    top:
+                        parseFloat(
+                            selected.style.top
+                        ) + 25,
+
+                    size:
+                        parseInt(
+                            selected.dataset.size
+                        ),
+
+                    rotation:
+                        parseInt(
+                            selected.dataset.rotation
+                        ),
+
+                    label:
+                        label.style.display !== "none"
+                            ? label.textContent
+                            : ""
+                }
+            );
+
+
+        selectObject(newObj);
+
+        showStatus(
+            "Fahrzeug kopiert"
+        );
+
+    }
+);
+
+
+/* =====================================
    LÖSCHEN
-   ============================== */
+===================================== */
 
 document
-    .getElementById("delete")
-    .addEventListener("click", () => {
+.getElementById("delete")
+.addEventListener(
+    "click",
+    () => {
 
-        if (!selected) return;
+        if (!selected) {
+
+            showStatus(
+                "Zuerst ein Fahrzeug auswählen"
+            );
+
+            return;
+        }
+
 
         selected.remove();
+
         selected = null;
 
-    });
+        saveState();
+
+        showStatus(
+            "Fahrzeug gelöscht"
+        );
+
+    }
+);
 
 
-/* ==============================
-   ALLES ZURÜCKSETZEN
-   ============================== */
+/* =====================================
+   LAGE ZURÜCKSETZEN
+===================================== */
 
 document
-    .getElementById("reset")
-    .addEventListener("click", () => {
+.getElementById("reset")
+.addEventListener(
+    "click",
+    () => {
 
         const answer =
-            confirm("Soll die komplette Lage zurückgesetzt werden?");
+            confirm(
+                "Soll die komplette Lage wirklich zurückgesetzt werden?"
+            );
+
 
         if (!answer) return;
 
+
         layer.innerHTML = "";
+
         selected = null;
+
+        localStorage.removeItem(
+            STORAGE_KEY
+        );
+
+
+        showStatus(
+            "Lage zurückgesetzt"
+        );
+
+    }
+);
+
+
+/* =====================================
+   AUTOMATISCH SPEICHERN
+===================================== */
+
+function saveState() {
+
+    const objects = [];
+
+
+    document
+    .querySelectorAll(".map-object")
+    .forEach(obj => {
+
+        const label =
+            obj.querySelector(
+                ".object-label"
+            );
+
+
+        objects.push({
+
+            src:
+                obj.dataset.src,
+
+            name:
+                obj.dataset.name,
+
+            left:
+                parseFloat(
+                    obj.style.left
+                ) || 0,
+
+            top:
+                parseFloat(
+                    obj.style.top
+                ) || 0,
+
+            size:
+                parseInt(
+                    obj.dataset.size
+                ) || 90,
+
+            rotation:
+                parseInt(
+                    obj.dataset.rotation
+                ) || 0,
+
+            label:
+                label &&
+                label.style.display !== "none"
+                    ? label.textContent
+                    : ""
+
+        });
 
     });
 
 
-/* ==============================
-   LEEREN BEREICH ANKLICKEN
-   ============================== */
+    localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(objects)
+    );
 
-mapArea.addEventListener("pointerdown", e => {
+}
 
-    if (
-        e.target === mapArea ||
-        e.target.id === "objectLayer"
-    ) {
 
-        if (selected) {
-            selected.classList.remove("selected");
-        }
+/* =====================================
+   GESPEICHERTE LAGE LADEN
+===================================== */
 
-        selected = null;
+function loadState() {
+
+    const raw =
+        localStorage.getItem(
+            STORAGE_KEY
+        );
+
+
+    if (!raw) return;
+
+
+    let objects;
+
+
+    try {
+
+        objects =
+            JSON.parse(raw);
+
+    } catch {
+
+        return;
+
     }
 
-});
+
+    if (!Array.isArray(objects)) {
+        return;
+    }
+
+
+    objects.forEach(data => {
+
+        createObject(
+            data.src,
+            data.name,
+            0,
+            0,
+            {
+                left:
+                    data.left,
+
+                top:
+                    data.top,
+
+                size:
+                    data.size,
+
+                rotation:
+                    data.rotation,
+
+                label:
+                    data.label
+            }
+        );
+
+    });
+
+
+    if (selected) {
+        selected.classList.remove(
+            "selected"
+        );
+    }
+
+    selected = null;
+
+}
+
+
+/* =====================================
+   LEEREN BEREICH ANTIPPEN
+===================================== */
+
+layer.addEventListener(
+    "pointerdown",
+    e => {
+
+        if (e.target !== layer) {
+            return;
+        }
+
+
+        if (selected) {
+
+            selected.classList.remove(
+                "selected"
+            );
+
+        }
+
+
+        selected = null;
+
+    }
+);
+
+
+/* =====================================
+   START
+===================================== */
+
+loadState();
+
 </script>
 
 </body>
