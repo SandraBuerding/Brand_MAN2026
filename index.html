@@ -15,7 +15,7 @@ body{height:100dvh;display:flex;flex-direction:column;overflow:hidden}header{fle
 </head>
 <body>
 <header><div><h1>Planspiel</h1><p>Brand_MAN2026 · Lage darstellen und gemeinsam besprechen</p></div><div class="actions"><button id="export" class="primary">↓ Lage speichern</button><button id="import">↑ Lage laden</button><button id="reset" class="danger">Lage zurücksetzen</button><input type="file" id="file" accept=".json,application/json" hidden></div></header>
-<main><section class="workspace" aria-label="Lagekarte"><div class="mapbar"><strong id="count">0 Objekte</strong><label>Ansicht <input id="zoom" type="range" min="100" max="250" step="25" value="100" aria-label="Kartenansicht vergrößern"><output id="zoomvalue">100 %</output></label></div><div class="viewport" id="viewport"><div class="stage" id="stage"><img class="base-map" id="map" src="Lagekarte.png" alt="Planspiel-Karte Brand_MAN2026" draggable="false"><div class="overlay" id="overlay"></div></div><div class="error" id="maperror" hidden>Die Karte konnte nicht geladen werden. Lege diese <b>index.html</b> neben <b>Lagekarte.png</b> ab. Achte auf die genaue Groß- und Kleinschreibung.</div></div><div class="hint">Palette antippen → hinzufügen · Objekt ziehen → verschieben · Kartenhintergrund zum Scrollen verwenden · Objekte außerhalb des Ausschnitts bleiben in der Übersicht sichtbar</div><div id="status" class="status" role="status" aria-live="polite">Lokal gespeichert wird ausschließlich auf diesem Gerät in diesem Browser.</div></section>
+<main><section class="workspace" aria-label="Lagekarte"><div class="mapbar"><strong id="count">0 Objekte</strong><label>Ansicht <input id="zoom" type="range" min="100" max="250" step="25" value="100" aria-label="Kartenansicht vergrößern"><output id="zoomvalue">100 %</output></label></div><div class="viewport" id="viewport"><div class="stage" id="stage"><img class="base-map" id="map" src="Lagekarte.png" alt="Planspiel-Karte Brand_MAN2026" draggable="false"><div class="overlay" id="overlay"></div></div><div class="error" id="maperror" hidden>Die Karte konnte nicht geladen werden. Lege diese <b>index.html</b> neben <b>Lagekarte.png</b> ab. Achte auf die genaue Groß- und Kleinschreibung.</div></div><div class="hint">Palette antippen → hinzufügen · Objekt ziehen → verschieben · Kartenhintergrund zum Scrollen verwenden · Objekte außerhalb des Ausschnitts bleiben gespeichert</div><div id="status" class="status" role="status" aria-live="polite">Lokal gespeichert wird ausschließlich auf diesem Gerät in diesem Browser.</div></section>
 <aside aria-label="Objektpalette und Bearbeitung"><div class="tabs" role="tablist" aria-label="Palette"><button id="vehicles" role="tab" aria-selected="true" aria-controls="palette">🚒 Fahrzeuge</button><button id="symbols" role="tab" aria-selected="false" aria-controls="palette" tabindex="-1">◉ Taktische Zeichen</button></div><div class="empty-note">Antippen oder mit der Maus auf die Karte ziehen.</div><div id="palette" class="palette" role="tabpanel" aria-labelledby="vehicles"></div><section class="editor"><h2 id="selection">Kein Objekt ausgewählt</h2><fieldset id="fields" disabled><label for="label">Beschriftung</label><input id="label" maxlength="100" placeholder="z. B. Florian 1/46/1" autocomplete="off"><div class="controls"><button data-action="left">↶ −15°</button><button data-action="right">↷ +15°</button><button data-action="smaller">− Kleiner</button><button data-action="larger">+ Größer</button><button data-action="duplicate">Duplizieren</button><button data-action="delete" class="danger">Löschen</button></div></fieldset><p class="hint" id="details">Ein Objekt auf der Karte antippen.</p></section><footer>Taktische Zeichen: vereinfachte Übungsdarstellung.</footer></aside></main>
 <nav id="mapnav" class="map-navigation" aria-label="Lagekarten auswählen"><span>Lagekarten</span></nav>
 <script>
@@ -27,8 +27,10 @@ const SYMBOLS=[['EL','Einsatzleitung'],['BR','Bereitstellungsraum'],['RMHP','Ret
 // Normalized standard-map coordinates are the common reference for all objects.
 // Replacing maps with different crops requires updating these transformations.
 const MAP_VIEWS=[{id:'overview',name:'Übersicht',file:'Lagekarte_Uebersicht.png'},{id:'standard',name:'Standard',file:'Lagekarte.png'},{id:'detail',name:'Detail',file:'Lagekarte_Detail.png'}];
-const MAP_TRANSFORMS={"standard":{"sx":1,"sy":1,"tx":0,"ty":0},"overview":{"sx":0.5041999999999999,"sy":0.5025499999999999,"tx":0.31484375000000003,"ty":0.17309882747068678},"detail":{"sx":2.0034500000000004,"sy":2.016891891891892,"tx":-0.29136718749999996,"ty":-0.19763513513513514}};
-const CALIBRATION='brand-man2026-2026-10';
+const LEGACY_MAP_TRANSFORMS={"standard":{"sx":1,"sy":1,"tx":0,"ty":0},"overview":{"sx":0.5041999999999999,"sy":0.5025499999999999,"tx":0.31484375000000003,"ty":0.17309882747068678},"detail":{"sx":2.0034500000000004,"sy":2.016891891891892,"tx":-0.29136718749999996,"ty":-0.19763513513513514}};
+const MAP_TRANSFORMS={"standard":{"sx":1,"sy":1,"tx":0,"ty":0},"overview":{"sx":0.5210413694721826,"sy":0.5269183168316832,"tx":0.2223621899890038,"ty":0.14637066428810852},"detail":{"sx":2.0034500000000004,"sy":2.016891891891892,"tx":-0.29136718749999996,"ty":-0.19763513513513514}};
+const CALIBRATION='brand-man2026-2026-10-satellite';
+const LEGACY_CALIBRATION='brand-man2026-2026-10';
 let activeView='standard';
 function toMap(p,id=activeView){const t=MAP_TRANSFORMS[id];return {x:p.x*t.sx+t.tx,y:p.y*t.sy+t.ty}}
 function toWorld(p,id=activeView){const t=MAP_TRANSFORMS[id];return {x:(p.x-t.tx)/t.sx,y:(p.y-t.ty)/t.sy}}
@@ -50,24 +52,25 @@ function loadMap(){
  mapReady=false;$('stage').hidden=true;$('maperror').hidden=false;$('maperror').textContent='Karte wird geladen …';
  const view=MAP_VIEWS.find(v=>v.id===activeView);$('map').alt='Planspiel · '+view.name;
  $('zoom').value='100';$('zoomvalue').value='100 %';$('stage').style.width='100%';$('viewport').scrollTop=0;$('viewport').scrollLeft=0;
- $('map').src=view.file;renderMapNav();
+ $('map').src=view.file+'?karte='+encodeURIComponent(CALIBRATION);renderMapNav();
 }
 function switchMap(id){
  if(id===activeView||!MAP_VIEWS.some(v=>v.id===id))return;
  endDrag();activeView=id;if(current()&&!isVisible(current()))selected=null;render();loadMap();save();
 }
 function restoreLage(next){objects=next.objects;activeView=next.activeView;selected=null;render();loadMap()}
+function legacyToWorld(p,id){const t=LEGACY_MAP_TRANSFORMS[id];return {x:(p.x-t.tx)/t.sx,y:(p.y-t.ty)/t.sy}}
 function readLage(data){
  if(!data||data.format!=='Brand_MAN2026-Lagekarte')throw Error('Keine gültige Lagedatei.');
  if(data.version===3)return {activeView:'standard',objects:validate(data)};
  if(!MAP_VIEWS.some(v=>v.id===data.activeView))throw Error('Unbekannte Kartenansicht.');
- if(data.version===5){if(data.calibration!==CALIBRATION)throw Error('Die Datei gehört zu einer anderen Kartenabstimmung.');return {activeView:data.activeView,objects:validate(data,true)}}
+ if(data.version===5){if(data.calibration!==CALIBRATION&&data.calibration!==LEGACY_CALIBRATION)throw Error('Die Datei gehört zu einer anderen Kartenabstimmung.');return {activeView:data.activeView,objects:validate(data,true)}}
  if(data.version!==4||!Array.isArray(data.views)||data.views.length!==MAP_VIEWS.length)throw Error('Keine gültige Lagedatei.');
  const merged=[],seen=new Set();
  for(const view of data.views){
   if(!view||!MAP_VIEWS.some(v=>v.id===view.id)||seen.has(view.id))throw Error('Unbekannte oder doppelte Kartenansicht.');
   seen.add(view.id);
-  for(const o of validate({format:data.format,version:3,objects:view.objects}))merged.push({...o,...toWorld(o,view.id)});
+  for(const o of validate({format:data.format,version:3,objects:view.objects}))merged.push({...o,...legacyToWorld(o,view.id)});
  }
  if(merged.length>MAX)throw Error('Zu viele Objekte in der Datei.');
  return {activeView:data.activeView,objects:merged};
@@ -123,7 +126,13 @@ $('zoom').oninput=()=>{$('stage').style.width=$('zoom').value+'%';$('zoomvalue')
 $('reset').onclick=()=>{if(!objects.length)return;if(confirm('Die gemeinsame Lage mit allen Fahrzeugen und Zeichen löschen? Die Änderung gilt für alle Ansichten.')){objects=[];selected=null;render();save()}};
 $('export').onclick=()=>{save();const blob=new Blob([JSON.stringify(payload(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='Planspiel_'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);status('JSON-Datei zum Speichern bereitgestellt. Auf dem iPad ggf. „In Dateien sichern“ wählen.')};
 function validKey(o){return o&&((o.kind==='vehicle'&&VEHICLES.includes(o.key))||(o.kind==='symbol'&&SYMBOLS.some(s=>s[0]===o.key)))}
-function validCoordinates(o,world){const p=world?toMap(o,'overview'):o;return p.x>=-1e-8&&p.x<=1+1e-8&&p.y>=-1e-8&&p.y<=1+1e-8}
+function validCoordinates(o,world){
+ const inside=p=>p.x>=-1e-8&&p.x<=1+1e-8&&p.y>=-1e-8&&p.y<=1+1e-8;
+ if(!world)return inside(o);
+ // Retain objects in parts of the earlier overview that the new crop excludes.
+ const t=LEGACY_MAP_TRANSFORMS.overview;
+ return inside(toMap(o,'overview'))||inside({x:o.x*t.sx+t.tx,y:o.y*t.sy+t.ty});
+}
 function validate(data,world=false){if(!data||data.format!=='Brand_MAN2026-Lagekarte'||data.version!==(world?5:3)||!Array.isArray(data.objects)||data.objects.length>MAX)throw Error('Keine gültige Lagedatei.');return data.objects.map(o=>{if(!validKey(o)||!['x','y','scale','rotation'].every(k=>typeof o[k]==='number'&&Number.isFinite(o[k]))||!validCoordinates(o,world)||o.scale<.1||o.scale>3||typeof o.label!=='string'||o.label.length>100)throw Error('Die Datei enthält ungültige Objektdaten.');return {id:uid(),kind:o.kind,key:o.key,x:o.x,y:o.y,scale:o.scale,rotation:((o.rotation%360)+360)%360,label:o.label}})}
 $('import').onclick=()=>$('file').click();$('file').onchange=async()=>{const file=$('file').files[0];$('file').value='';if(!file)return;try{if(file.size>5*1024*1024)throw Error('Die Datei ist zu groß (maximal 5 MB).');const next=readLage(JSON.parse(await file.text()));if(objects.length&&!confirm('Die Datei ersetzt die gemeinsame Lage in allen Ansichten. Fortfahren?'))return;restoreLage(next);save();if(!storageWarned)status('Gemeinsame Lage geladen · automatisch lokal gespeichert.')}catch(e){alert('Import nicht möglich: '+e.message)}};
 $('map').onload=()=>{mapReady=true;$('stage').hidden=false;$('maperror').hidden=true};
